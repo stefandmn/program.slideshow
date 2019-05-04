@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="program.slideshow" name="Media Slideshow" version="1.4.5" provider-name="AMSD">
+	<requires>
+		<import addon="xbmc.python" version="2.20.0"/>
+		<import addon="xbmc.addon" version="15.2.0"/>
+		<import addon="module.clue" version="1.4.1"/>
+	</requires>
+	<extension point="xbmc.python.script" library="default.py">
+		<provides>executable</provides>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary lang="en">Media Slideshow for Music Player</summary>
+		<description lang="en">When audio player is running the skin displays pictures and biography about playing media item</description>
+	</extension>
+</addon>

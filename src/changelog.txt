@@ -1,0 +1,12 @@
+v1.4
+- Rename it in program.slideshow
+- Transforms artistinformation into artistslideshow
+- Integration with service.clue to re-use the generic functions and API
+- Restructure data collection code to define info providers
+- Addon icon has been changed (rebranding)
+- Adapt default Clue skin to support artistinformation addon
+- Redesign utilities and script dependencies
+- Rename script.artistslideshow into script.artistinformation
+- Integrate and use logging and debugging from main system component
+- Reorganize the source code, aggregating components and libraries
+- Inherit add-on functions from original script.artistslideshow v1.6.9
