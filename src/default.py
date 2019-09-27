@@ -363,7 +363,7 @@ class MediaSlideshow(xbmc.Player):
 		commons.debug('Cleaning directory: %s' % dir)
 		try:
 			_, oldfiles = xbmcvfs.listdir(dir)
-		except Exception, e:
+		except BaseException as e:
 			commons.error('Unexpected error while getting directory list: %s' % str(e))
 			oldfiles = []
 		for oldfile in oldfiles:
@@ -402,10 +402,13 @@ class MediaSlideshow(xbmc.Player):
 		elif xbmc.Player().isPlayingAudio():
 			try:
 				nowPlayingFile = xbmc.Player().getPlayingFile()
+				if str(nowPlayingFile).startswith("pipe://") or str(nowPlayingFile).startswith("pvr://"):
+					nowPlayingFile = xbmc.Player().getMusicInfoTag().getArtist() + " - " + xbmc.Player().getMusicInfoTag().getTitle() + ".raw"
 			except:
 				nowPlayingFile = None
 		else:
 			nowPlayingFile = None
+		commons.trace('Evaluating playback content: %s' %nowPlayingFile)
 		return nowPlayingFile != self.__LastPlayingFile
 
 
@@ -413,6 +416,8 @@ class MediaSlideshow(xbmc.Player):
 		if xbmc.Player().isPlayingAudio():
 			try:
 				self.__LastPlayingFile = xbmc.Player().getPlayingFile()
+				if str(self.__LastPlayingFile).startswith("pipe://") or str(self.__LastPlayingFile).startswith("pvr://"):
+					self.__LastPlayingFile = xbmc.Player().getMusicInfoTag().getArtist() + " - " + xbmc.Player().getMusicInfoTag().getTitle() + ".raw"
 			except:
 				self.__LastPlayingFile = None
 		else:
@@ -423,7 +428,7 @@ class MediaSlideshow(xbmc.Player):
 		try:
 			self.__Window.setProperty(property_name, value)
 			commons.trace('Setting %s to value %s' % (property_name, value))
-		except Exception, e:
+		except BaseException as e:
 			commons.error("Exception: Couldn't set property %s to value %s: %s" % (property_name, value, str(e)))
 
 

@@ -41,7 +41,7 @@ def DeleteFile(filename):
 		except IOError:
 			commons.error('Unable to delete %s' % filename)
 			return False
-		except Exception, e:
+		except Exception as e:
 			commons.error('Unknown error while attempting to delete %s: %s' % (filename, e))
 			return False,
 		return True
@@ -62,7 +62,7 @@ def ReadFile(filename):
 		except IOError:
 			commons.error('Unable to read data from ' + filename)
 			return None
-		except Exception, e:
+		except Exception as e:
 			commons.error('Unknown error while reading data from ' + filename + ": %s" % e)
 			return None
 		return data
@@ -83,10 +83,10 @@ def WriteFile(data, filename):
 		thefile.close()
 		commons.trace('Successfully wrote data to ' + filename)
 		return True
-	except IOError, e:
+	except IOError as e:
 		commons.trace('Unable to write data to ' + filename + ": " % e)
 		return False
-	except Exception, e:
+	except Exception as e:
 		commons.trace('Unknown error while writing data to ' + filename + ": %s" % e)
 		return False
 
@@ -126,7 +126,7 @@ def ItemHashWithPath(item, thepath):
 def ImageType(filename):
 	try:
 		new_ext = '.' + imghdr.what(filename).replace('jpeg', 'jpg')
-	except Exception, e:
+	except Exception as e:
 		new_ext = '.tbn'
 	return new_ext
 
@@ -159,15 +159,15 @@ class URL:
 			elif urltype == "delete":
 				urldata = requests.delete(url, params=params, data=data, headers=self.headers, timeout=self.timeout, verify=False)
 			commons.debug("The url is [%s], the params are [%s], the data is [%s]" % (urldata.url, str(params), str(data)))
-		except requests.exceptions.ConnectionError, e:
+		except requests.exceptions.ConnectionError as e:
 			commons.warn('Site unreachable at %s: %s' % (url, str(e)))
-		except requests.exceptions.Timeout, e:
+		except requests.exceptions.Timeout as e:
 			commons.warn('Timeout error while downloading from %s: %s' % (url, str(e)))
-		except socket.timeout, e:
+		except socket.timeout as e:
 			commons.warn('Timeout error while downloading from %s: %s' % (url, str(e)))
-		except requests.exceptions.HTTPError, e:
+		except requests.exceptions.HTTPError as e:
 			commons.warn('HTTP Error while downloading from %s: %s' % (url, str(e)))
-		except requests.exceptions.RequestException, e:
+		except requests.exceptions.RequestException as e:
 			commons.warn('Unknown error while downloading from %s: %s' % (url, str(e)))
 		if urldata:
 			success = True
