@@ -2,10 +2,8 @@
 
 import os
 import sys
-import socket
 import imghdr
 import common
-import requests
 
 if hasattr(sys.modules["__main__"], "xbmc"):
 	xbmc = sys.modules["__main__"].xbmc
@@ -110,43 +108,32 @@ def ImageType(filename):
 
 
 class URL:
-	def __init__(self, returntype='text', headers='', timeout=10):
+	def __init__(self, returntype='text', headers=None, timeout=10):
 		self.timeout = timeout
 		self.headers = headers
 		self.returntype = returntype
 
 	def Get(self, url, **kwargs):
 		params, data = self._unpack_args(kwargs)
-		return self._urlcall(url, params, '', 'get')
+		return self._urlcall(url, params, '', 'GET')
 
 	def Post(self, url, **kwargs):
 		params, data = self._unpack_args(kwargs)
-		return self._urlcall(url, params, data, 'post')
+		return self._urlcall(url, params, data, 'POST')
 
 	def Delete(self, url, **kwargs):
 		params, data = self._unpack_args(kwargs)
-		return self._urlcall(url, params, data, 'delete')
+		return self._urlcall(url, params, data, 'DELETE')
 
 	def _urlcall(self, url, params, data, urltype):
 		urldata = None
-		try:
-			if urltype == "get":
-				urldata = requests.get(url, params=params, timeout=self.timeout, verify=False)
-			elif urltype == "post":
-				urldata = requests.post(url, params=params, data=data, headers=self.headers, timeout=self.timeout, verify=False)
-			elif urltype == "delete":
-				urldata = requests.delete(url, params=params, data=data, headers=self.headers, timeout=self.timeout, verify=False)
-			common.debug("The url is [%s], the params are [%s], the data is [%s]" % (urldata.url, str(params), str(data)))
-		except requests.exceptions.ConnectionError as e:
-			common.warn('Site unreachable at %s: %s' % (url, str(e)))
-		except requests.exceptions.Timeout as e:
-			common.warn('Timeout error while downloading from %s: %s' % (url, str(e)))
-		except socket.timeout as e:
-			common.warn('Timeout error while downloading from %s: %s' % (url, str(e)))
-		except requests.exceptions.HTTPError as e:
-			common.warn('HTTP Error while downloading from %s: %s' % (url, str(e)))
-		except requests.exceptions.RequestException as e:
-			common.warn('Unknown error while downloading from %s: %s' % (url, str(e)))
+		if urltype == "get":
+			urldata = common.urlcall(url, 'GET', fields=params, headers=self.headers, timeout=self.timeout, certver=False)
+		elif urltype == "post":
+			urldata = common.urlcall(url, 'POST', fields=params, headers=self.headers, timeout=self.timeout, certver=False)
+		elif urltype == "delete":
+			urldata = common.urlcall(url, 'POST', fields=params, headers=self.headers, timeout=self.timeout, certver=False)
+		common.debug("The url is [%s], the params are [%s], the data is [%s]" % (urldata.url, str(params), str(data)))
 		if urldata:
 			success = True
 			common.debug('Returning URL as ' + self.returntype)
