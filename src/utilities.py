@@ -2,6 +2,7 @@
 
 import os
 import sys
+import json
 import imghdr
 import common
 
@@ -112,10 +113,11 @@ class URL:
 		self.timeout = timeout
 		self.headers = headers
 		self.returntype = returntype
+		self.sslcheck = common.setting("ssl_check")
 
 	def Get(self, url, **kwargs):
 		params, data = self._unpack_args(kwargs)
-		return self._urlcall(url, params, '', 'GET')
+		return self._urlcall(url, params, None, 'GET')
 
 	def Post(self, url, **kwargs):
 		params, data = self._unpack_args(kwargs)
@@ -127,27 +129,28 @@ class URL:
 
 	def _urlcall(self, url, params, data, urltype):
 		urldata = None
-		if urltype == "get":
-			urldata = common.urlcall(url, 'GET', fields=params, headers=self.headers, timeout=self.timeout, certver=False)
-		elif urltype == "post":
-			urldata = common.urlcall(url, 'POST', fields=params, headers=self.headers, timeout=self.timeout, certver=False)
-		elif urltype == "delete":
-			urldata = common.urlcall(url, 'POST', fields=params, headers=self.headers, timeout=self.timeout, certver=False)
-		common.debug("The url is [%s], the params are [%s], the data is [%s]" % (urldata.url, str(params), str(data)))
-		if urldata:
-			success = True
-			common.debug('Returning URL as ' + self.returntype)
+		common.debug("Preparing [%s] method, for url [%s], using parameters: %s" % (urltype.upper(), url, str(params)))
+		if urltype.lower() == "get":
+			urldata = common.urlcall(url, 'GET', fields=params, headers=self.headers, timeout=self.timeout, certver=self.sslcheck)
+		elif urltype.lower() == "post":
+			urldata = common.urlcall(url, 'POST', fields=params, headers=self.headers, timeout=self.timeout, certver=self.sslcheck)
+		elif urltype.lower() == "delete":
+			urldata = common.urlcall(url, 'DELETE', fields=params, headers=self.headers, timeout=self.timeout, certver=self.sslcheck)
+		if urldata is not None:
+			common.debug('Returning URL response as ' + self.returntype)
 			try:
 				if self.returntype == 'text':
-					data = urldata.text
+					data = str(urldata)
 				elif self.returntype == 'binary':
-					data = urldata.content
+					data = urldata
 				elif self.returntype == 'json':
-					data = urldata.json()
+					data = json.loads(urldata)
+				common.debug('URL response: %s ' %(str(data) if self.returntype != 'binary' else "<binary>"))
+				success = True
 			except:
 				data = None
 				success = False
-				common.warn('Unable to convert returned object to acceptable type')
+				common.warn('Unable to convert returned data to the expected object type')
 		else:
 			success = False
 			data = None
@@ -160,3 +163,6 @@ class URL:
 		else:
 			data = kwargs.get('data', '')
 		return params, data
+
+	def getAgent(self):
+		return xbmc.getUserAgent()

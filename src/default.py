@@ -72,7 +72,7 @@ class MediaSlideshow(xbmc.Player):
 				self._runSlideshowCollection()
 				self._runCacheTrimming()
 		except BaseException as be:
-			common.error("Error processing slideshow workflow: %s" % be.message)
+			common.error("Error processing slideshow workflow: %s" % str(be))
 		self.__ProcessRunning = False
 
 

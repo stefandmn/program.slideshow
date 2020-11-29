@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import common
 from .abstract import ContentProvider
 
 

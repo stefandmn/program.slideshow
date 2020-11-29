@@ -74,6 +74,10 @@ msgctxt "#32202"
 msgid "  Maximum cache size (in megabytes)"
 msgstr ""
 
+msgctxt "#32203"
+msgid "  Validate SSL certificates"
+msgstr ""
+
 msgctxt "#32206"
 msgid "Preferred language for artist biography"
 msgstr ""

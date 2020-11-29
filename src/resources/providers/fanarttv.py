@@ -45,8 +45,9 @@ class FanartTV(ContentProvider):
 			tag = urllib.quote(artist[0])
 		else:
 			tag = urllib.quote(artist)
+		self.JSONURL.headers={'User-Agent', self.JSONURL.getAgent()}
 		success, json_data = self.JSONURL.Get("http://musicbrainz.org/ws/2/artist/?query=artist:%s&fmt=json" %tag)
-		if success and json_data["artists"]:
+		if success and json_data.has_key("artists"):
 			return json_data["artists"][0]["id"]
 		else:
 			return ''
