@@ -4,7 +4,7 @@ import os
 import re
 import sys
 import time
-import commons
+import common
 import utilities
 from resources.providers import ContentProvider
 
@@ -30,17 +30,17 @@ class MediaSlideshow(xbmc.Player):
 
 
 	def __init__(self):
-		commons.debug('%s v%s has been started' % (commons.AddonName(), commons.AddonVersion()))
+		common.debug('%s v%s has been started' % (common.AddonName(), common.AddonVersion()))
 		# read and load plugins
 		for cls in ContentProvider.__subclasses__():
 			try:
 				plugin = cls()
 				module = str(cls.__name__).lower()
-				if (module == 'local' or commons.any2bool(commons.setting(module))) and not self.PROVIDERS.has_key(module):
+				if (module == 'local' or common.any2bool(common.setting(module))) and not self.PROVIDERS.has_key(module):
 					self.PROVIDERS[module] = plugin
-					commons.debug('Loading plugin [' + module + ']')
+					common.debug('Loading plugin [' + module + ']')
 			except BaseException as be:
-				commons.error('Unexpected error while loading [%s] plugin: %s' %(str(cls),str(be)))
+				common.error('Unexpected error while loading [%s] plugin: %s' %(str(cls),str(be)))
 		# process variables
 		self.__LastPlayingFile = None
 		self.__ProcessRunning = False
@@ -48,7 +48,7 @@ class MediaSlideshow(xbmc.Player):
 
 	def execute(self):
 		if not self.PROVIDERS:
-			commons.error("No data provider detected")
+			common.error("No data provider detected")
 		else:
 			if not self._setInitProcess():
 				self._setInitWorkflow()
@@ -58,8 +58,8 @@ class MediaSlideshow(xbmc.Player):
 					xbmc.sleep(3000)
 			else:
 				self._setProperty("SlideshowAddon.Resume", "True")
-				commons.debug('Script already running, no additional instance is needed')
-		commons.debug('%s v%s has been terminated' % (commons.AddonName(), commons.AddonVersion()))
+				common.debug('Script already running, no additional instance is needed')
+		common.debug('%s v%s has been terminated' % (common.AddonName(), common.AddonVersion()))
 
 
 	def process(self, trigger=False):
@@ -72,7 +72,7 @@ class MediaSlideshow(xbmc.Player):
 				self._runSlideshowCollection()
 				self._runCacheTrimming()
 		except BaseException as be:
-			commons.error("Error processing slideshow workflow: %s" % be.message)
+			common.error("Error processing slideshow workflow: %s" % be.message)
 		self.__ProcessRunning = False
 
 
@@ -82,10 +82,10 @@ class MediaSlideshow(xbmc.Player):
 			if len(sys.argv) >= 2:
 				params = dict(arg.split("=") for arg in sys.argv[1].split("&"))
 		except Exception as ex:
-			commons.error('Unexpected error while parsing arguments: %s' % str(ex))
+			common.error('Unexpected error while parsing arguments: %s' % str(ex))
 		self.__WID = params.get("windowid", "12006")
 		self.__Window = xbmcgui.Window(int(self.__WID))
-		commons.debug("Parameter 'Window ID' is set to %s" % self.__WID)
+		common.debug("Parameter 'Window ID' is set to %s" % self.__WID)
 		self.ADDON_PROPERTY = "Window(%s).Property(%s)" % (self.__WID, "SlideshowAddon")
 		self.ADDON_PROPERTY_RUNNING = "Window(%s).Property(%s)" % (self.__WID, "SlideshowAddon.Running")
 		self.ADDON_PROPERTY_RESUME = "Window(%s).Property(%s)" % (self.__WID, "SlideshowAddon.Resume")
@@ -94,17 +94,17 @@ class MediaSlideshow(xbmc.Player):
 
 	def _setInitWorkflow(self):
 		# get settings
-		self.__BIOLANGUAGE = commons.getAddonSetting("biography_language")
-		self.__RESTRICTCACHE = commons.setting("restrict_cache")
-		self.__MAXCACHESIZE = commons.any2int(commons.setting("max_cache_size")) * 1000000
+		self.__BIOLANGUAGE = common.getAddonSetting("biography_language")
+		self.__RESTRICTCACHE = common.setting("restrict_cache")
+		self.__MAXCACHESIZE = common.any2int(common.setting("max_cache_size")) * 1000000
 		# define workflow resources (paths)
-		self.__RootDir = xbmc.translatePath(commons.AddonProfile()).decode('utf-8')
+		self.__RootDir = xbmc.translatePath(common.AddonProfile()).decode('utf-8')
 		utilities.CheckPath(os.path.join(self.__RootDir, ''))
-		self.__DataDir = xbmc.translatePath('special://profile/addon_data/%s/data' % commons.AddonId()).decode('utf-8')
+		self.__DataDir = xbmc.translatePath('special://profile/addon_data/%s/data' % common.AddonId()).decode('utf-8')
 		utilities.CheckPath(os.path.join(self.__DataDir, ''))
-		self.__MergeDir = xbmc.translatePath('special://profile/addon_data/%s/merge' % commons.AddonId()).decode('utf-8')
+		self.__MergeDir = xbmc.translatePath('special://profile/addon_data/%s/merge' % common.AddonId()).decode('utf-8')
 		utilities.CheckPath(os.path.join(self.__MergeDir, ''))
-		self.__TempDir = xbmc.translatePath('special://profile/addon_data/%s/temp' % commons.AddonId()).decode('utf-8')
+		self.__TempDir = xbmc.translatePath('special://profile/addon_data/%s/temp' % common.AddonId()).decode('utf-8')
 		utilities.CheckPath(os.path.join(self.__TempDir, ''))
 		# mark workflow process as started
 		self._setProperty("SlideshowAddon", self.__RootDir)
@@ -124,18 +124,18 @@ class MediaSlideshow(xbmc.Player):
 				return
 			if artist is None or artist == '':
 				continue
-			commons.debug("Start collecting slideshow for '%s'" % str(artist))
+			common.debug("Start collecting slideshow for '%s'" % str(artist))
 			artistsIndex += 1
 			cacheFound = False
 			cacheAdded = False
 			self.__InfoDir = self._resdir(artist)
-			commons.debug('Info directory is %s' % self.__InfoDir)
+			common.debug('Info directory is %s' % self.__InfoDir)
 			self.__CacheDir = self._resdir(artist)
-			commons.debug('Cache directory is %s' % self.__CacheDir)
+			common.debug('Cache directory is %s' % self.__CacheDir)
 			if artistsIndex == 1:
-				commons.debug('Downloading artist albums and biography..')
+				common.debug('Downloading artist albums and biography..')
 				self._getArtistDetails(artist)
-			commons.debug('Downloading artist images..')
+			common.debug('Downloading artist images..')
 			cachelist = xbmcvfs.listdir(self.__CacheDir)
 			cachelist_str = ''.join(str(e) for e in cachelist)
 			for file in cachelist[1]:
@@ -143,12 +143,12 @@ class MediaSlideshow(xbmc.Player):
 					cacheFound = True
 					break
 			if cacheFound:
-				commons.debug('Found artist cache, use it for slideshow!')
+				common.debug('Found artist cache, use it for slideshow!')
 				self._setSkinSlideshow(self.__CacheDir)
 			for url in self._getArtistImages(artist):
 				if self._isPlaybackChanged():
 					return
-				commons.debug('Checking URL: ' + url)
+				common.debug('Checking URL: ' + url)
 				dstpath = utilities.ItemHashWithPath(url, self.__CacheDir)
 				shwpath = utilities.ItemHashWithPath(url, self.__MergeDir)
 				_, checkfilename = os.path.split(dstpath)
@@ -168,31 +168,31 @@ class MediaSlideshow(xbmc.Player):
 			else:
 				self._setSkinSlideshow(self.__CacheDir)
 		time.sleep(1)
-		commons.debug('Finished to download slideshow resources')
+		common.debug('Finished to download slideshow resources')
 
 
 	def _getDownload(self, url, shwpath, dstpath):
 		if not xbmc.abortRequested:
 			tmpimg = os.path.join(self.__TempDir, xbmc.getCacheThumbName(url))
-			commons.debug('Define temporary image: ' + tmpimg)
+			common.debug('Define temporary image: ' + tmpimg)
 			if xbmcvfs.exists(tmpimg):
 				utilities.DeleteFile(tmpimg)
 			success, urldata = utilities.URL('binary').Get(url)
 			if success:
 				success = utilities.WriteFile(urldata, tmpimg)
-				commons.debug('Downloaded %s to %s' % (url, tmpimg))
+				common.debug('Downloaded %s to %s' % (url, tmpimg))
 			if not success:
 				return False
 			if xbmcvfs.Stat(tmpimg).st_size() > 999:
 				extension = utilities.ImageType(tmpimg)
 				if not xbmcvfs.exists(dstpath + extension):
-					commons.debug("Copying '%s' to '%s'" % (tmpimg, shwpath + extension))
+					common.debug("Copying '%s' to '%s'" % (tmpimg, shwpath + extension))
 					xbmcvfs.copy(tmpimg, shwpath + extension)
-					commons.debug("Moving '%s' to '%s'" % (tmpimg, dstpath + extension))
+					common.debug("Moving '%s' to '%s'" % (tmpimg, dstpath + extension))
 					xbmcvfs.rename(tmpimg, dstpath + extension)
 					return True
 				else:
-					commons.debug('Image already exists, deleting temporary file')
+					common.debug('Image already exists, deleting temporary file')
 					utilities.DeleteFile(tmpimg)
 					return False
 			else:
@@ -207,12 +207,12 @@ class MediaSlideshow(xbmc.Player):
 		params['lang'] = self.__BIOLANGUAGE
 		params['artist'] = artist
 		for key in self.PROVIDERS.iterkeys():
-			commons.debug('Checking provider [%s] for biography..' % key)
-			params['getall'] = commons.getAddonSetting(key + "_all")
-			params['clientapikey'] = commons.getAddonSetting(key + "_apikey")
+			common.debug('Checking provider [%s] for biography..' % key)
+			params['getall'] = common.getAddonSetting(key + "_all")
+			params['clientapikey'] = common.getAddonSetting(key + "_apikey")
 			found = self.PROVIDERS[key].getBiography(params)
 			if found is not None and found and len(found) > len(biography):
-				commons.debug('Stored new biography from provider [%s]' % key)
+				common.debug('Stored new biography from provider [%s]' % key)
 				biography = found
 		self._setProperty("SlideshowAddon.Biography", biography)
 		albums = []
@@ -221,12 +221,12 @@ class MediaSlideshow(xbmc.Player):
 		params['lang'] = self.__BIOLANGUAGE
 		params['artist'] = artist
 		for key in self.PROVIDERS.iterkeys():
-			commons.debug('Checking provider [%s] for album information..' % key)
-			params['getall'] = commons.getAddonSetting(key + "_all")
-			params['clientapikey'] = commons.getAddonSetting(key + "_apikey")
+			common.debug('Checking provider [%s] for album information..' % key)
+			params['getall'] = common.getAddonSetting(key + "_all")
+			params['clientapikey'] = common.getAddonSetting(key + "_apikey")
 			found = self.PROVIDERS[key].getAlbumList(params)
 			if found is not None and len(found) > len(albums):
-				commons.debug('Got album list from provider [%s]' % key)
+				common.debug('Got album list from provider [%s]' % key)
 				albums = found
 		for idx, item in enumerate(albums):
 			self._setProperty("SlideshowAddon.%d.AlbumName" % (idx + 1), item[0])
@@ -244,12 +244,12 @@ class MediaSlideshow(xbmc.Player):
 		params['infodir'] = self.__InfoDir
 		params['exclusionsfile'] = os.path.join(self.__CacheDir, "_exclusions.nfo")
 		for key in self.PROVIDERS.iterkeys():
-			commons.debug('Checking provider [%s] for images..' % key)
-			params['getall'] = commons.getAddonSetting(key + "_all")
-			params['clientapikey'] = commons.getAddonSetting(key + "_apikey")
+			common.debug('Checking provider [%s] for images..' % key)
+			params['getall'] = common.getAddonSetting(key + "_all")
+			params['clientapikey'] = common.getAddonSetting(key + "_apikey")
 			plist = self.PROVIDERS[key].getImageList(params)
 			if plist is not None:
-				commons.debug('Got images from provider [%s]' % key)
+				common.debug('Got images from provider [%s]' % key)
 				images.extend(plist)
 		return images
 
@@ -262,7 +262,7 @@ class MediaSlideshow(xbmc.Player):
 			playingFile = xbmc.Player().getPlayingFile()
 			artistTag = xbmc.Player().getMusicInfoTag().getArtist().strip()
 			titleTag = xbmc.Player().getMusicInfoTag().getTitle().strip()
-			commons.debug("Discovering artist details for: artist(s) = %s, title = %s, file = %s" %(artistTag, titleTag, playingFile))
+			common.debug("Discovering artist details for: artist(s) = %s, title = %s, file = %s" %(artistTag, titleTag, playingFile))
 			if self._isempty(artistTag) and playingFile is not None and playingFile != '':
 				lastFileSep = playingFile.rfind(os.sep) + 1 if playingFile.count(os.sep, 0) > 0 else (playingFile.rfind(os.altsep) + 1 if playingFile.count(os.altsep, 0) > 0 else 0)
 				lastExtSep = playingFile.rfind(os.extsep) if playingFile.count(os.extsep, lastFileSep) else len(playingFile) - 1
@@ -280,9 +280,9 @@ class MediaSlideshow(xbmc.Player):
 				artists = self._getSplitArtists(artistTag)
 				featuring = self._getFeaturedArtists(titleTag)
 			if featuring is not None and len(featuring) > 0:
-				commons.debug('Adding featuring artists in the list: %s' % str(featuring))
+				common.debug('Adding featuring artists in the list: %s' % str(featuring))
 				artists.extend(featuring)
-			commons.debug('Found the following artists: %s' % str(artists))
+			common.debug('Found the following artists: %s' % str(artists))
 		return artists
 
 
@@ -307,14 +307,14 @@ class MediaSlideshow(xbmc.Player):
 
 	def _setSkinSlideshow(self, dir1=None, dir2=None):
 		if (dir1 is None or dir1 == '' or not os.path.isdir(dir1) or dir1 == self.__RootDir) and (dir2 is None or dir2 == '' or not os.path.isdir(dir2)):
-			commons.debug('Set root slideshow to ' + self.__RootDir)
+			common.debug('Set root slideshow to ' + self.__RootDir)
 			self._setProperty("SlideshowAddon", self.__RootDir)
 			self.__LastTimeSlideshowSwitch = time.time()
 		elif dir1 is not None and dir1 != '' and os.path.isdir(dir1) and (dir2 is None or dir2 == '' or not os.path.isdir(dir2)):
 			if dir1 != self._skinSlideshow:
 				while time.time() - self.__LastTimeSlideshowSwitch < 10:
 					time.sleep(1)
-				commons.debug('Set slideshow to ' + dir1)
+				common.debug('Set slideshow to ' + dir1)
 				self._setProperty("SlideshowAddon", dir1)
 				self.__LastTimeSlideshowSwitch = time.time()
 			elif dir1 == self._skinSlideshow and dir1 == self.__CacheDir:
@@ -322,29 +322,29 @@ class MediaSlideshow(xbmc.Player):
 				while time.time() - self.__LastTimeSlideshowSwitch < 10:
 					time.sleep(1)
 				self._setProperty("SlideshowAddon", dir1)
-				commons.debug('Set force slideshow to ' + dir1)
+				common.debug('Set force slideshow to ' + dir1)
 				self.__LastTimeSlideshowSwitch = time.time()
 			elif dir1 == self._skinSlideshow and dir1 == self.__MergeDir:
 				self._setProperty("SlideshowAddon", self.__CacheDir)
 				while time.time() - self.__LastTimeSlideshowSwitch < 10:
 					time.sleep(1)
 				self._setProperty("SlideshowAddon", dir1)
-				commons.debug('Set force slideshow to ' + dir1)
+				common.debug('Set force slideshow to ' + dir1)
 				self.__LastTimeSlideshowSwitch = time.time()
 		elif dir1 is not None and dir1 != '' and os.path.isdir(dir1) and dir2 is not None and dir2 != '' and os.path.isdir(dir2):
 			if time.time() - self.__LastTimeSlideshowSwitch > 10:
 				if dir1 != self._skinSlideshow:
-					commons.debug('Set alternate slideshow to ' + dir1)
+					common.debug('Set alternate slideshow to ' + dir1)
 					self._setProperty("SlideshowAddon", dir1)
 					self.__LastTimeSlideshowSwitch = time.time()
 				elif dir2 != self._skinSlideshow:
-					commons.debug('Set alternate slideshow to ' + dir2)
+					common.debug('Set alternate slideshow to ' + dir2)
 					self._setProperty("SlideshowAddon", dir2)
 					self.__LastTimeSlideshowSwitch = time.time()
 
 
 	def _runPropertiesReset(self):
-		commons.debug('Resetting skin properties')
+		common.debug('Resetting skin properties')
 		self._setProperty("SlideshowAddon", self.__RootDir)
 		self._setProperty("SlideshowAddon.Biography")
 		prevAlbumCount = self._infolabel("Window(%s).Property(%s)" % (self.__WID, "SlideshowAddon.AlbumCount"))
@@ -360,11 +360,11 @@ class MediaSlideshow(xbmc.Player):
 	def _runDirCleaning(self, dir):
 		if dir == self._skinSlideshow:
 			self._setSkinSlideshow()
-		commons.debug('Cleaning directory: %s' % dir)
+		common.debug('Cleaning directory: %s' % dir)
 		try:
 			_, oldfiles = xbmcvfs.listdir(dir)
 		except BaseException as e:
-			commons.error('Unexpected error while getting directory list: %s' % str(e))
+			common.error('Unexpected error while getting directory list: %s' % str(e))
 			oldfiles = []
 		for oldfile in oldfiles:
 			if not oldfile.endswith('.nfo'):
@@ -376,8 +376,8 @@ class MediaSlideshow(xbmc.Player):
 			now = time.time()
 			cache_trim_delay = 0  # delay time is in seconds
 			if now - self.__LastTimeCacheTrim > cache_trim_delay:
-				commons.debug('Trimming the cache down to %s bytes' % self.__MAXCACHESIZE)
-				cache_root = xbmc.translatePath('special://profile/addon_data/%s/data/' % commons.AddonId()).decode('utf-8')
+				common.debug('Trimming the cache down to %s bytes' % self.__MAXCACHESIZE)
+				cache_root = xbmc.translatePath('special://profile/addon_data/%s/data/' % common.AddonId()).decode('utf-8')
 				folders, fls = xbmcvfs.listdir(cache_root)
 				folders.sort(key=lambda x: os.path.getmtime(os.path.join(cache_root, x)), reverse=True)
 				cachesize = 0
@@ -386,16 +386,16 @@ class MediaSlideshow(xbmc.Player):
 					if self._isPlaybackChanged():
 						break
 					cachesize = cachesize + self._folderSize(os.path.join(cache_root, folder))
-					commons.debug('Looking at folder %s cache size is now %s' % (folder, cachesize))
+					common.debug('Looking at folder %s cache size is now %s' % (folder, cachesize))
 					if cachesize > self.__MAXCACHESIZE and not firstfolder:
 						self._runDirCleaning(os.path.join(cache_root, folder))
-						commons.debug('Deleted files in folder %s' % folder)
+						common.debug('Deleted files in folder %s' % folder)
 					firstfolder = False
 				self.__LastTimeCacheTrim = now
 
 
 	def _isPlaybackChanged(self):
-		if commons.any2bool(self._infolabel(self.ADDON_PROPERTY_RESUME)):
+		if common.any2bool(self._infolabel(self.ADDON_PROPERTY_RESUME)):
 			self._setProperty("SlideshowAddon.Resume")
 			self.__LastPlayingFile = None
 			return True
@@ -408,7 +408,7 @@ class MediaSlideshow(xbmc.Player):
 				nowPlayingFile = None
 		else:
 			nowPlayingFile = None
-		commons.trace('Evaluating playback content: %s' %nowPlayingFile)
+		common.trace('Evaluating playback content: %s' %nowPlayingFile)
 		return nowPlayingFile != self.__LastPlayingFile
 
 
@@ -427,9 +427,9 @@ class MediaSlideshow(xbmc.Player):
 	def _setProperty(self, property_name, value=""):
 		try:
 			self.__Window.setProperty(property_name, value)
-			commons.trace('Setting %s to value %s' % (property_name, value))
+			common.trace('Setting %s to value %s' % (property_name, value))
 		except BaseException as e:
-			commons.error("Exception: Couldn't set property %s to value %s: %s" % (property_name, value, str(e)))
+			common.error("Exception: Couldn't set property %s to value %s: %s" % (property_name, value, str(e)))
 
 
 	@property
@@ -439,14 +439,14 @@ class MediaSlideshow(xbmc.Player):
 
 	@property
 	def _isSlideshowEnabled(self):
-		return commons.any2bool(self._infolabel(self.ADDON_PROPERTY_RUNNING))
+		return common.any2bool(self._infolabel(self.ADDON_PROPERTY_RUNNING))
 
 
 	def _cache2merge(self):
 		cachelist = xbmcvfs.listdir(self.__CacheDir)
 		for file in cachelist[1]:
 			if file.lower().endswith('tbn') or file.lower().endswith('jpg') or file.lower().endswith('jpeg') or file.lower().endswith('gif') or file.lower().endswith('png'):
-				img_source = os.path.join(self.__CacheDir, utilities.SmartUnicode(file).decode('utf-8'))
+				img_source = os.path.join(self.__CacheDir, common.utf8(file).decode('utf-8'))
 				img_dest = os.path.join(self.__MergeDir, utilities.ItemHash(img_source) + utilities.ImageType(img_source))
 				xbmcvfs.copy(img_source, img_dest)
 
@@ -470,7 +470,7 @@ class MediaSlideshow(xbmc.Player):
 
 	def _resdir(self, theartist):
 		CacheName = utilities.ItemHash(theartist)
-		resdir = xbmc.translatePath('special://profile/addon_data/%s/data/%s/' % (commons.AddonId(), CacheName,)).decode('utf-8')
+		resdir = xbmc.translatePath('special://profile/addon_data/%s/data/%s/' % (common.AddonId(), CacheName,)).decode('utf-8')
 		utilities.CheckPath(resdir)
 		return resdir
 

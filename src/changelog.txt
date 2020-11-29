@@ -1,3 +1,8 @@
+v2.0
+- Source code compatible for Python3
+- Adapted addon source code to Clue v2 and Kodi 18+
+- New CCM process adopted
+
 v1.4
 - Rename it in program.slideshow
 - Transforms artistinformation into artistslideshow

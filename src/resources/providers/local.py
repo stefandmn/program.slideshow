@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import os
-import commons
+import common
 import xml.etree.ElementTree as _xmltree
-from abstract import ContentProvider
-from utilities import ReadFile, SmartUnicode
+from .abstract import ContentProvider
+from utilities import ReadFile
+from common import utf8
 
 
 class Local(ContentProvider):
@@ -18,8 +19,8 @@ class Local(ContentProvider):
 	def getAlbumList(self, params):
 		albums = []
 		filepath = os.path.join(params.get('localartistdir', ''), self.ALBUMFILEPATH)
-		local_path = os.path.join(params.get('localartistdir', ''), SmartUnicode(params.get('artist', '')).decode('utf-8'), 'override')
-		commons.debug('Checking ' + filepath)
+		local_path = os.path.join(params.get('localartistdir', ''), utf8(params.get('artist', '')).decode('utf-8'), 'override')
+		common.debug('Checking ' + filepath)
 		rawxml = ReadFile(filepath)
 		if rawxml:
 			xmldata = _xmltree.fromstring(rawxml)
@@ -49,7 +50,7 @@ class Local(ContentProvider):
 			elif element.tag == "genre":
 				agenre = element.text
 		if not albums:
-			commons.debug('No albums found in local xml file')
+			common.debug('No albums found in local xml file')
 			return []
 		else:
 			return albums
@@ -57,7 +58,7 @@ class Local(ContentProvider):
 	def getBiography(self, params):
 		bio = ''
 		filepath = os.path.join(params.get('localartistdir', ''), self.BIOFILEPATH)
-		commons.debug('Checking ' + filepath)
+		common.debug('Checking ' + filepath)
 		rawxml = ReadFile(filepath)
 		if rawxml:
 			xmldata = _xmltree.fromstring(rawxml)

@@ -2,7 +2,7 @@
 
 import os
 import urllib
-from abstract import ContentProvider
+from .abstract import ContentProvider
 
 
 class FanartTV(ContentProvider):

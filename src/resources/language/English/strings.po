@@ -1,6 +1,6 @@
-# MCPi language file
-# Addon Name: Media Artwork
-# Addon id: plugin.artwork
+# Kodi language file
+# Addon Name: Media Slideshow
+# Addon id: program.slideshow
 # Addon Provider: AMSD
 msgid ""
 msgstr ""

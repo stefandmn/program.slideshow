@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from abstract import ContentProvider
+from .abstract import ContentProvider
 
 
 class TheAudioDB(ContentProvider):

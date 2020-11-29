@@ -4,7 +4,7 @@ import os
 import sys
 import socket
 import imghdr
-import commons
+import common
 import requests
 
 if hasattr(sys.modules["__main__"], "xbmc"):
@@ -19,17 +19,17 @@ else:
 
 
 def CheckPath(path, create=True):
-	commons.trace('Checking for %s' % path)
+	common.trace('Checking for %s' % path)
 	if not xbmcvfs.exists(path):
 		if create:
-			commons.trace('%s does not exist, creating it' % path)
+			common.trace('%s does not exist, creating it' % path)
 			xbmcvfs.mkdirs(path)
 			return True
 		else:
-			commons.trace('%s does not exist' % path)
+			common.trace('%s does not exist' % path)
 			return False
 	else:
-		commons.trace('%s exists' % path)
+		common.trace('%s exists' % path)
 		return True
 
 
@@ -37,16 +37,16 @@ def DeleteFile(filename):
 	if xbmcvfs.exists(filename):
 		try:
 			xbmcvfs.delete(filename)
-			commons.trace('Deleting file %s' % filename)
+			common.trace('Deleting file %s' % filename)
 		except IOError:
-			commons.error('Unable to delete %s' % filename)
+			common.error('Unable to delete %s' % filename)
 			return False
 		except Exception as e:
-			commons.error('Unknown error while attempting to delete %s: %s' % (filename, e))
+			common.error('Unknown error while attempting to delete %s: %s' % (filename, e))
 			return False,
 		return True
 	else:
-		commons.trace('%s does not exist' % filename)
+		common.trace('%s does not exist' % filename)
 		return False
 
 
@@ -60,14 +60,14 @@ def ReadFile(filename):
 			data = thefile.read()
 			thefile.close()
 		except IOError:
-			commons.error('Unable to read data from ' + filename)
+			common.error('Unable to read data from ' + filename)
 			return None
 		except Exception as e:
-			commons.error('Unknown error while reading data from ' + filename + ": %s" % e)
+			common.error('Unknown error while reading data from ' + filename + ": %s" % e)
 			return None
 		return data
 	else:
-		commons.trace('%s does not exist' % filename)
+		common.trace('%s does not exist' % filename)
 		return None
 
 
@@ -81,36 +81,14 @@ def WriteFile(data, filename):
 	try:
 		thefile.write(data)
 		thefile.close()
-		commons.trace('Successfully wrote data to ' + filename)
+		common.trace('Successfully wrote data to ' + filename)
 		return True
 	except IOError as e:
-		commons.trace('Unable to write data to ' + filename + ": " % e)
+		common.trace('Unable to write data to ' + filename + ": " % e)
 		return False
 	except Exception as e:
-		commons.trace('Unknown error while writing data to ' + filename + ": %s" % e)
+		common.trace('Unknown error while writing data to ' + filename + ": %s" % e)
 		return False
-
-
-def SmartUnicode(s):
-	if not s:
-		return ''
-	try:
-		if not isinstance(s, basestring):
-			if hasattr(s, '__unicode__'):
-				s = unicode(s)
-			else:
-				s = unicode(str(s), 'UTF-8')
-		elif not isinstance(s, unicode):
-			s = unicode(s, 'UTF-8')
-	except:
-		if not isinstance(s, basestring):
-			if hasattr(s, '__unicode__'):
-				s = unicode(s)
-			else:
-				s = unicode(str(s), 'ISO-8859-1')
-		elif not isinstance(s, unicode):
-			s = unicode(s, 'ISO-8859-1')
-	return s.encode('utf-8')
 
 
 def ItemHash(item):
@@ -158,20 +136,20 @@ class URL:
 				urldata = requests.post(url, params=params, data=data, headers=self.headers, timeout=self.timeout, verify=False)
 			elif urltype == "delete":
 				urldata = requests.delete(url, params=params, data=data, headers=self.headers, timeout=self.timeout, verify=False)
-			commons.debug("The url is [%s], the params are [%s], the data is [%s]" % (urldata.url, str(params), str(data)))
+			common.debug("The url is [%s], the params are [%s], the data is [%s]" % (urldata.url, str(params), str(data)))
 		except requests.exceptions.ConnectionError as e:
-			commons.warn('Site unreachable at %s: %s' % (url, str(e)))
+			common.warn('Site unreachable at %s: %s' % (url, str(e)))
 		except requests.exceptions.Timeout as e:
-			commons.warn('Timeout error while downloading from %s: %s' % (url, str(e)))
+			common.warn('Timeout error while downloading from %s: %s' % (url, str(e)))
 		except socket.timeout as e:
-			commons.warn('Timeout error while downloading from %s: %s' % (url, str(e)))
+			common.warn('Timeout error while downloading from %s: %s' % (url, str(e)))
 		except requests.exceptions.HTTPError as e:
-			commons.warn('HTTP Error while downloading from %s: %s' % (url, str(e)))
+			common.warn('HTTP Error while downloading from %s: %s' % (url, str(e)))
 		except requests.exceptions.RequestException as e:
-			commons.warn('Unknown error while downloading from %s: %s' % (url, str(e)))
+			common.warn('Unknown error while downloading from %s: %s' % (url, str(e)))
 		if urldata:
 			success = True
-			commons.debug('Returning URL as ' + self.returntype)
+			common.debug('Returning URL as ' + self.returntype)
 			try:
 				if self.returntype == 'text':
 					data = urldata.text
@@ -182,7 +160,7 @@ class URL:
 			except:
 				data = None
 				success = False
-				commons.warn('Unable to convert returned object to acceptable type')
+				common.warn('Unable to convert returned object to acceptable type')
 		else:
 			success = False
 			data = None

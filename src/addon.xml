@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="program.slideshow" name="Media Slideshow" version="1.4.8" provider-name="AMSD">
+<addon id="program.slideshow" name="Media Slideshow" version="2.0.1" provider-name="AMSD">
 	<requires>
-		<import addon="xbmc.python" version="2.20.0"/>
+		<import addon="xbmc.python" version="2.25.0"/>
 		<import addon="xbmc.addon" version="15.2.0"/>
-		<import addon="module.clue" version="1.4.1"/>
+		<import addon="module.clue" version="2.0.1"/>
 	</requires>
 	<extension point="xbmc.python.script" library="default.py">
 		<provides>executable</provides>
