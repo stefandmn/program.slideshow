@@ -6,6 +6,7 @@ import sys
 import time
 import common
 import utilities
+import traceback
 from resources.providers import ContentProvider
 
 if hasattr(sys.modules["__main__"], "xbmc"):
@@ -73,6 +74,8 @@ class MediaSlideshow(xbmc.Player):
 				self._runCacheTrimming()
 		except BaseException as be:
 			common.error("Error processing slideshow workflow: %s" % str(be))
+			if common.istrace:
+				traceback.print_exc()
 		self.__ProcessRunning = False
 
 
@@ -177,10 +180,12 @@ class MediaSlideshow(xbmc.Player):
 			common.debug('Define temporary image: ' + tmpimg)
 			if xbmcvfs.exists(tmpimg):
 				utilities.DeleteFile(tmpimg)
-			success, urldata = utilities.URL('binary').Get(url)
-			if success:
+			urldata = common.urlcall(url, output='binary')
+			if urldata:
 				success = utilities.WriteFile(urldata, tmpimg)
 				common.debug('Downloaded %s to %s' % (url, tmpimg))
+			else:
+				success = False
 			if not success:
 				return False
 			if xbmcvfs.Stat(tmpimg).st_size() > 999:
@@ -297,7 +302,7 @@ class MediaSlideshow(xbmc.Player):
 
 
 	def _getSplitArtists(self, response):
-		response = response.replace('/', '+')
+		response = response.replace('(', '').replace(')', '')
 		response = response.replace(' ft. ', '/').replace(' feat. ', '/').replace(' Ft. ', '/').replace(' Feat. ', '/')
 		response = response.replace(' ft ', '/').replace(' feat ', '/').replace(' Ft ', '/').replace(' Feat ', '/')
 		response = response.replace(' and ', '/').replace(' And ', '/').replace(' & ', '/')
