@@ -1,5 +1,5 @@
 v2.0
-- Replace requests library by using common.urlcall (over urllib3)
+- Replace requests library by using common.urlcall
 - Source code compatible for Python3
 - Adapted addon source code to Clue v2 and Kodi 18+
 - New CCM process adopted

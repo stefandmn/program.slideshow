@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-import urllib
+import common
 from .abstract import ContentProvider
 
 
@@ -42,12 +42,11 @@ class FanartTV(ContentProvider):
 
 	def getMusicBrainzID(self, artist):
 		if isinstance(artist, list):
-			tag = urllib.quote(artist[0])
+			tag = common.urlquote(artist[0])
 		else:
-			tag = urllib.quote(artist)
-		self.JSONURL.headers={'User-Agent', self.JSONURL.getAgent()}
-		success, json_data = self.JSONURL.Get("http://musicbrainz.org/ws/2/artist/?query=artist:%s&fmt=json" %tag)
-		if success and json_data.has_key("artists"):
+			tag = common.urlquote(artist)
+		json_data = common.urlcall("http://musicbrainz.org/ws/2/artist/?query=artist:%s&fmt=json" %tag, headers={"User-Agent", self.JSONURL.getAgent()}, output='json')
+		if json_data is not None and json_data.has_key("artists"):
 			return json_data["artists"][0]["id"]
 		else:
 			return ''
