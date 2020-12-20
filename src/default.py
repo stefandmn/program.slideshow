@@ -200,6 +200,7 @@ class MediaSlideshow(xbmc.Player):
 		common.debug("Collecting images for artist: %s" %artist)
 		images = []
 		params = {}
+		kontor = 0
 		params['lang'] = self.__BIOLANGUAGE
 		params['artist'] = artist
 		params['infodir'] = self.dir_cache
@@ -228,29 +229,53 @@ class MediaSlideshow(xbmc.Player):
 				success = utilities.WriteFile(urldata, cachepath) if urldata else False
 				if success and xbmcvfs.Stat(cachepath).st_size() < 999:
 					utilities.DeleteFile(cachepath)
+				elif success:
+					kontor += 1
+					if (kontor % 5 == 0) or (kontor == 1 and len([f for f in cachefiles if os.path.splitext(f)[1] != ".nfo"]) == 0):
+						self._setSkinSlideshow(None, self.dir_cache)
 		common.trace("Images setup is done")
 
 
 	def _setSkinSlideshow(self, dir1=None, dir2=None):
 		if (dir1 is None or dir1 == '' or not os.path.isdir(dir1) or dir1 == self.dir_root) and (dir2 is None or dir2 == '' or not os.path.isdir(dir2)):
-			common.debug('Set slideshow location to ROOT: %s' %dir1)
-			self._setProperty("SlideshowAddon", dir1)
+			if self._resinpath(dir1) > 0:
+				self.setSkinProperty("SlideshowAddon", dir1)
+				common.debug('Set slideshow location to ROOT: %s' % dir1)
+			else:
+				self.setSkinProperty("SlideshowAddon")
+				common.debug('Reset slideshow location for ROOT: %s' % dir1)
 		elif dir1 is not None and dir1 != '' and os.path.isdir(dir1) and (dir2 is None or dir2 == '' or not os.path.isdir(dir2)):
-			common.debug('Set slideshow primary location: %s' % dir1)
-			self.setSkinProperty("SlideshowAddon", dir1)
+			if self._resinpath(dir1) > 0:
+				common.debug('Set slideshow primary location: %s' % dir1)
+				self.setSkinProperty("SlideshowAddon", dir1)
+			else:
+				self.setSkinProperty("SlideshowAddon")
+				common.debug('Reset slideshow primary location: %s' % dir1)
 		elif (dir1 is None or dir1 == '' or not os.path.isdir(dir1) or dir1 == self.dir_root) and (dir2 is not None and dir2 != '' and os.path.isdir(dir2)):
-			common.debug('Set slideshow secondary location: %s' % dir2)
-			self._setProperty("SlideshowAddon", self.dir_root)
+			self.setSkinProperty("SlideshowAddon")
 			common.sleep(1000)
-			self.setSkinProperty("SlideshowAddon", dir2)
+			if self._resinpath(dir2) > 0:
+				self.setSkinProperty("SlideshowAddon", dir2)
+				common.debug('Set slideshow secondary location: %s' % dir2)
+			else:
+				self.setSkinProperty("SlideshowAddon")
+				common.debug('Reset slideshow secondary location: %s' % dir2)
 		elif (dir1 is not None and dir1 != '' and os.path.isdir(dir1) and dir1 != self.dir_root) and (dir2 is not None and dir2 != '' and os.path.isdir(dir2) and dir2 != self.dir_root):
 			if dir1 != self.addoninfo:
-				common.debug('Set slideshow temporary location: %s' % dir1)
-				self.setSkinProperty("SlideshowAddon", dir1)
+				if self._resinpath(dir1) > 0:
+					common.debug('Set slideshow temporary location: %s' % dir1)
+					self.setSkinProperty("SlideshowAddon", dir1)
+				else:
+					self.setSkinProperty("SlideshowAddon")
+					common.debug('Reset slideshow temporary location: %s' % dir1)
 				common.sleep(1000)
 			if dir2 != self.addoninfo:
-				common.debug('Set slideshow target location: %s' % dir2)
-				self.setSkinProperty("SlideshowAddon", dir2)
+				if self._resinpath(dir2) > 0:
+					common.debug('Set slideshow target location: %s' % dir2)
+					self.setSkinProperty("SlideshowAddon", dir2)
+				else:
+					self.setSkinProperty("SlideshowAddon")
+					common.debug('Reset slideshow target location: %s' % dir2)
 
 
 	def getArtistNames(self):
@@ -350,7 +375,7 @@ class MediaSlideshow(xbmc.Player):
 					if self._isPlaybackChanged():
 						common.debug("Cancel cache trimming due to the change of player content")
 						break
-					cachesize = cachesize + self._folderSize(os.path.join(cache_root, folder))
+					cachesize = cachesize + self._sizepath(os.path.join(cache_root, folder))
 					common.debug('Looking at folder %s cache size is now %s' % (folder, cachesize))
 					if cachesize > self.__MAXCACHESIZE and not firstfolder:
 						self._setCleanedDirectory(os.path.join(cache_root, folder))
@@ -420,7 +445,7 @@ class MediaSlideshow(xbmc.Player):
 				xbmcvfs.copy(img_source, img_dest)
 
 
-	def _folderSize(self, start_path):
+	def _sizepath(self, start_path):
 		total_size = 0
 		for dirpath, dirnames, filenames in os.walk(start_path):
 			for f in filenames:
@@ -434,6 +459,13 @@ class MediaSlideshow(xbmc.Player):
 		resdir = xbmc.translatePath('special://profile/addon_data/%s/data/%s/' % (common.AddonId(), CacheName,)).decode('utf-8')
 		utilities.CheckPath(resdir)
 		return resdir
+
+
+	def _resinpath(self, path):
+		if xbmcvfs.exists(path):
+			return len([f for f in os.listdir(path) if os.path.splitext(f)[1] in (".png", ".jpg", ".gif")])
+		else:
+			return 0
 
 
 	def _isempty(self, name):

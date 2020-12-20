@@ -103,7 +103,7 @@ def ItemHashWithPath(item, path):
 
 def ImageType(filepath):
 	try:
-		ext = str(os.path.splitext(filepath)).replace('jpeg', 'jpg')
+		ext = str(os.path.splitext(filepath)[1]).replace('jpeg', 'jpg')
 	except:
 		ext = '.tbn'
 	return ext
