@@ -3,7 +3,6 @@
 import os
 import sys
 import json
-import imghdr
 import common
 
 if hasattr(sys.modules["__main__"], "xbmc"):
@@ -18,17 +17,17 @@ else:
 
 
 def CheckPath(path, create=True):
-	common.trace('Checking for %s' % path)
+	common.trace('Checking %s' % path, "utilities")
 	if not xbmcvfs.exists(path):
 		if create:
-			common.trace('%s does not exist, creating it' % path)
+			common.trace('Not found and try to create it: %s' % path, "utilities")
 			xbmcvfs.mkdirs(path)
 			return True
 		else:
-			common.trace('%s does not exist' % path)
+			common.trace('Not found: %s' % path, "utilities")
 			return False
 	else:
-		common.trace('%s exists' % path)
+		common.trace('Found: %s' % path, "utilities")
 		return True
 
 
@@ -36,16 +35,16 @@ def DeleteFile(filename):
 	if xbmcvfs.exists(filename):
 		try:
 			xbmcvfs.delete(filename)
-			common.trace('Deleting file %s' % filename)
+			common.trace('Deleting file: %s' % filename, "utilities")
+			return True
 		except IOError:
-			common.error('Unable to delete %s' % filename)
+			common.error('Unable to delete file: %s' % filename, "utilities")
 			return False
 		except Exception as e:
-			common.error('Unknown error while attempting to delete %s: %s' % (filename, e))
+			common.error('Unknown error while attempting to delete [%s] file path: %s' % (filename, e), "utilities")
 			return False,
-		return True
 	else:
-		common.trace('%s does not exist' % filename)
+		common.trace('File does not exist: %s' % filename, "utilities")
 		return False
 
 
@@ -59,20 +58,22 @@ def ReadFile(filename):
 			data = thefile.read()
 			thefile.close()
 		except IOError:
-			common.error('Unable to read data from ' + filename)
+			common.error('Unable to read data from file: %s' %filename, "utilities")
 			return None
 		except Exception as e:
-			common.error('Unknown error while reading data from ' + filename + ": %s" % e)
+			common.error('Unknown error while reading data from [%s] file: %s' %(filename, str(e)), "utilities")
 			return None
 		return data
 	else:
-		common.trace('%s does not exist' % filename)
+		common.trace('File does not exist: %s' %filename, "utilities")
 		return None
 
 
 def WriteFile(data, filename):
 	if type(data).__name__ == 'unicode':
 		data = data.encode('utf-8')
+	elif isinstance(data, dict):
+		data = json.dumps(data)
 	try:
 		thefile = xbmcvfs.File(filename, 'wb')
 	except:
@@ -80,13 +81,13 @@ def WriteFile(data, filename):
 	try:
 		thefile.write(data)
 		thefile.close()
-		common.trace('Successfully wrote data to ' + filename)
+		common.trace('Successfully wrote data to file: %s' %filename, "utilities")
 		return True
 	except IOError as e:
-		common.trace('Unable to write data to ' + filename + ": " % e)
+		common.error('Unable to write data to [%s] file: %s' %(filename, str(e)), "utilities")
 		return False
 	except Exception as e:
-		common.trace('Unknown error while writing data to ' + filename + ": %s" % e)
+		common.error('Unknown error while writing data to [%s] file: %s' %(filename, str(e)), "utilities")
 		return False
 
 
@@ -94,15 +95,15 @@ def ItemHash(item):
 	return xbmc.getCacheThumbName(item).replace('.tbn', '')
 
 
-def ItemHashWithPath(item, thepath):
+def ItemHashWithPath(item, path):
 	thumb = xbmc.getCacheThumbName(item).replace('.tbn', '')
-	thumbpath = os.path.join(thepath, thumb.encode('utf-8'))
+	thumbpath = os.path.join(path, thumb.encode('utf-8'))
 	return thumbpath
 
 
-def ImageType(filename):
+def ImageType(filepath):
 	try:
-		new_ext = '.' + imghdr.what(filename).replace('jpeg', 'jpg')
-	except Exception as e:
-		new_ext = '.tbn'
-	return new_ext
+		ext = str(os.path.splitext(filepath)).replace('jpeg', 'jpg')
+	except:
+		ext = '.tbn'
+	return ext

@@ -9,18 +9,21 @@ from common import utf8
 
 
 class Local(ContentProvider):
+
 	def __init__(self):
 		self.BIOFILEPATH = os.path.join('override', 'artistbio.nfo')
 		self.ALBUMFILEPATH = os.path.join('override', 'artistsalbums.nfo')
 
+
 	def getImageList(self, params):
 		return None
+
 
 	def getAlbumList(self, params):
 		albums = []
 		filepath = os.path.join(params.get('localartistdir', ''), self.ALBUMFILEPATH)
-		local_path = os.path.join(params.get('localartistdir', ''), utf8(params.get('artist', '')).decode('utf-8'), 'override')
-		common.debug('Checking ' + filepath)
+		local_path = os.path.join(params.get('localartistdir', ''), params.get('artist', '').decode('utf-8'), 'override')
+		common.debug('Checking ' + filepath, "local")
 		rawxml = ReadFile(filepath)
 		if rawxml:
 			xmldata = _xmltree.fromstring(rawxml)
@@ -50,10 +53,11 @@ class Local(ContentProvider):
 			elif element.tag == "genre":
 				agenre = element.text
 		if not albums:
-			common.debug('No albums found in local xml file')
+			common.debug('No albums found in local xml file', "local")
 			return []
 		else:
 			return albums
+
 
 	def getBiography(self, params):
 		bio = ''

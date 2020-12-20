@@ -6,6 +6,7 @@ from .abstract import ContentProvider
 
 
 class TheAudioDB(ContentProvider):
+
 	def __init__(self):
 		self.URL_ARTISTSEARCH = 'http://www.theaudiodb.com/api/v1/json/%s/search.php'
 		self.URL_ALBUMSEARCH = 'http://www.theaudiodb.com/api/v1/json/%s/searchalbum.php'
@@ -13,6 +14,7 @@ class TheAudioDB(ContentProvider):
 		self.ALBUMFILENAME = 'theaudiodbartistsalbums.nfo'
 		self.CACHETIMEFILENAME = 'theaudiodbcachetime.nfo'
 		self.ALBUMCACHETIMEFILENAME = 'theaudiodbalbumcachetime.nfo'
+
 
 	def getAlbumList(self, params):
 		albums = []
@@ -25,9 +27,10 @@ class TheAudioDB(ContentProvider):
 				if content is not None:
 					for album in content:
 						albums.append((album.get('strAlbum', ''), album.get('strAlbumThumb', ''), album.get('intYearReleased', ''), album.get('strStyle', album.get('strGenre', ''))))
-					if content[0].has_key("strMusicBrainzArtistID"):
+					if "strMusicBrainzArtistID"in content[0]:
 						params["mbid"] = content[0].get("strMusicBrainzArtistID")
 		return albums
+
 
 	def getBiography(self, params):
 		bio = ''
@@ -39,9 +42,10 @@ class TheAudioDB(ContentProvider):
 				content = json_data.get('artists')
 				if content is not None:
 					bio = content[0].get('strBiography' + params.get('lang', '').upper(), '')
-					if content[0].has_key("strMusicBrainzID"):
+					if "strMusicBrainzID" in content[0]:
 						params["mbid"] = content[0].get("strMusicBrainzID")
 		return self._CleanText(bio)
+
 
 	def getImageList(self, params):
 		images = []
@@ -60,12 +64,13 @@ class TheAudioDB(ContentProvider):
 						image = content[0].get('strArtistFanart' + num, '')
 						if image:
 							images.append(image)
-					if content[0].has_key("strMusicBrainzID"):
+					if "strMusicBrainzID" in content[0]:
 						params["mbid"] = content[0].get("strMusicBrainzID")
 		if not images:
 			return []
 		else:
 			return self._delExclusions(images, params.get('exclusionsfile', ''))
+
 
 	def _getUrlDetails(self, params, nameurl):
 		url_params = {}
@@ -75,6 +80,7 @@ class TheAudioDB(ContentProvider):
 			return nameurl, url_params
 		else:
 			return '', url_params
+
 
 	def _setFilepaths(self, params):
 		self.ARTISTFILEPATH = os.path.join(params.get('infodir', ''), self.ARTISTFILENAME)

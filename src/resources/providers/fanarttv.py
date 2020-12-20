@@ -6,10 +6,12 @@ from .abstract import ContentProvider
 
 
 class FanartTV(ContentProvider):
+
 	def __init__(self):
 		self.URL_MUSICSEARCH = 'http://webservice.fanart.tv/v3/music/'
 		self.FILENAME = 'fanarttvartistimages.nfo'
 		self.CACHETIMEFILENAME = 'fanarttvcachetime.nfo'
+
 
 	def getImageList(self, params):
 		images = []
@@ -34,19 +36,22 @@ class FanartTV(ContentProvider):
 		else:
 			return self._delExclusions(images, params.get('exclusionsfile'))
 
+
 	def getAlbumList(self, params):
 		return None
 
+
 	def getBiography(self, params):
 		return None
+
 
 	def getMusicBrainzID(self, artist):
 		if isinstance(artist, list):
 			tag = common.urlquote(artist[0])
 		else:
 			tag = common.urlquote(artist)
-		json_data = common.urlcall("http://musicbrainz.org/ws/2/artist/?query=artist:%s&fmt=json" %tag, headers={"User-Agent", self.JSONURL.getAgent()}, output='json')
-		if json_data is not None and json_data.has_key("artists"):
+		json_data = common.urlcall("http://musicbrainz.org/ws/2/artist/?query=artist:%s&fmt=json" %tag, headers={"User-Agent": common.agent()}, output='json')
+		if json_data is not None and "artists" in json_data:
 			return json_data["artists"][0]["id"]
 		else:
 			return ''
