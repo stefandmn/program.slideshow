@@ -1,6 +1,6 @@
-# Media Slideshow Plugin for Kodi
+# Media Slideshow Program for Kodi
 
-**Slideshow Plugin** has been adopted and redesigned to entertain you when 
+**Slideshow Program** has been adopted and redesigned to entertain you when 
 _Kodi_ media player runs audio content, displaying graphical media about 
 current song/artict(s)/albums/etc.
  

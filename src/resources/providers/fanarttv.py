@@ -50,7 +50,7 @@ class FanartTV(ContentProvider):
 			tag = common.urlquote(artist[0])
 		else:
 			tag = common.urlquote(artist)
-		json_data = common.urlcall("http://musicbrainz.org/ws/2/artist/?query=artist:%s&fmt=json" %tag, headers={"User-Agent": common.agent()}, output='json')
+		json_data = common.urlcall("http://musicbrainz.org/ws/2/artist/?query=artist:%s&fmt=json" %tag, headers={"User-Agent": common.agent()}, output='json', certver=self.SSLCHECK)
 		if json_data is not None and "artists" in json_data:
 			return json_data["artists"][0]["id"]
 		else:
