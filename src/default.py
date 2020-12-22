@@ -74,7 +74,7 @@ class MediaSlideshow(xbmc.Player):
 	def _configurations(self):
 		# get settings
 		common.debug('Reading addon configuration')
-		self.__BIOLANGUAGE = common.getAddonSetting("biography_language")
+		self.__BIOLANGUAGE = common.setting("biography_language")
 		self.__RESTRICTCACHE = common.setting("restrict_cache")
 		self.__MAXCACHESIZE = common.any2int(common.setting("max_cache_size")) * 1000000
 		self.__SSLCHECK = common.any2bool(common.setting("ssl_check"))
@@ -193,8 +193,8 @@ class MediaSlideshow(xbmc.Player):
 				common.debug("Cancel collecting biography due to the change of player content")
 				break
 			common.trace('Collecting biography from provider: [%s]' % key)
-			params['getall'] = common.getAddonSetting(key + "_all")
-			params['clientapikey'] = common.getAddonSetting(key + "_apikey")
+			params['getall'] = common.setting(key + "_all")
+			params['clientapikey'] = common.setting(key + "_apikey")
 			content = self.PROVIDERS[key].getBiography(params)
 			if content is not None and content and len(content) > len(biography):
 				common.trace('Stored new biography from provider [%s]' % key)
@@ -219,8 +219,8 @@ class MediaSlideshow(xbmc.Player):
 				common.debug("Cancel collecting album information due to the change of player content")
 				break
 			common.debug('Collecting album information from provider: [%s]' % key)
-			params['getall'] = common.getAddonSetting(key + "_all")
-			params['clientapikey'] = common.getAddonSetting(key + "_apikey")
+			params['getall'] = common.setting(key + "_all")
+			params['clientapikey'] = common.setting(key + "_apikey")
 			content = self.PROVIDERS[key].getAlbumList(params)
 			if content is not None and len(content) > len(albums):
 				common.debug('Stored album information from provider [%s], found up to %d albums' %(key, min(10,len(content))))
@@ -256,8 +256,8 @@ class MediaSlideshow(xbmc.Player):
 				common.debug("Cancel collecting images due to the change of player content")
 				return
 			common.debug('Identifying images by provider: [%s]' %key)
-			params['getall'] = common.getAddonSetting(key + "_all")
-			params['clientapikey'] = common.getAddonSetting(key + "_apikey")
+			params['getall'] = common.setting(key + "_all")
+			params['clientapikey'] = common.setting(key + "_apikey")
 			content = self.PROVIDERS[key].getImageList(params)
 			if content is not None and len(content) > 0:
 				images.extend(content)

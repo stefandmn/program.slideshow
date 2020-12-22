@@ -12,6 +12,6 @@
 		<setting id="restrict_cache" type="bool" label="32201" default="false" />
 		<setting id="max_cache_size" label="32202" type="labelenum" values="128|256|512|768|1024|2048|3072|4096" visible="eq(-1,true)" default="1024" />
 		<setting id="ssl_check" type="bool" label="32203" default="true" />
-		<setting id="nice" type="number" label="32207" default="10" />
+		<setting id="nice" type="number" label="32207" default="15" />
 	</category>
 </settings>
