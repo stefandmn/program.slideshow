@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import re
 import common
 from .abstract import ContentProvider
 
@@ -48,6 +49,7 @@ class TheAudioDB(ContentProvider):
 
 
 	def getImageList(self, params):
+		common.trace("Starting to search images using parameters: %s" % str(params), "theaudiodb")
 		images = []
 		self._setFilepaths(params)
 		url, url_params = self._getUrlDetails(params, self.URL_ARTISTSEARCH)
@@ -56,16 +58,38 @@ class TheAudioDB(ContentProvider):
 			if json_data:
 				content = json_data.get('artists')
 				if content is not None:
-					for i in range(1, 3):
-						if i == 1:
-							num = ''
-						else:
-							num = str(i)
-						image = content[0].get('strArtistFanart' + num, '')
-						if image:
-							images.append(image)
 					if "strMusicBrainzID" in content[0]:
 						params["mbid"] = content[0].get("strMusicBrainzID")
+					if "strArtistFanart" in  content[0]:
+						image = content[0].get('strArtistFanart')
+						if image:
+							images.append(image)
+					if "strArtistFanart2" in  content[0]:
+						image = content[0].get('strArtistFanart2')
+						if image:
+							images.append(image)
+					if "strArtistFanart3" in  content[0]:
+						image = content[0].get('strArtistFanart3')
+						if image:
+							images.append(image)
+					if "strArtistThumb" in  content[0]:
+						image = content[0].get('strArtistWideThumb')
+						if image:
+							images.append(image)
+					if "strArtistWideThumb" in  content[0]:
+						image = content[0].get('strArtistWideThumb')
+						if image:
+							images.append(image)
+					if "strArtistClearart" in  content[0]:
+						image = content[0].get('strArtistClearart')
+						if image:
+							images.append(image)
+					if "strArtistAlternate" in content[0] and not common.isempty(content[0].get('strArtistAlternate')):
+						params['fullname'] = content[0].get('strArtistAlternate')
+					if "strArtist" in content[0] and not common.isempty(content[0].get('strArtist')):
+						params['alias'] = content[0].get('strArtist')
+					if "strCountryCode" in content[0] and not common.isempty(content[0].get('strCountryCode')):
+						params['location'] = content[0].get('strCountryCode')
 		if not images:
 			return []
 		else:

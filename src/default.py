@@ -158,7 +158,6 @@ class MediaSlideshow(xbmc.Player):
 	def _setSlideshowCollection(self):
 		common.debug("Starting slideshow collection")
 		artistsArray = self.getArtistNames()
-		artistsCount = len(artistsArray)
 		artistsIndex = 0
 		for artist in artistsArray:
 			if self._isPlaybackChanged():
@@ -167,9 +166,9 @@ class MediaSlideshow(xbmc.Player):
 			if artist is None or artist == '':
 				continue
 			artistsIndex += 1
-			common.debug("Collecting slideshow for artist [%s]" % str(artist))
+			common.debug("Collecting slideshow for artist [%s]" % artist)
 			self.dir_cache = self._resdir(artist)
-			common.trace("Cache directory for artist [%s]: %s" % (str(artist), self.dir_cache))
+			common.trace("Cache directory for artist [%s]: %s" % (artist, self.dir_cache))
 			self._setSkinSlideshow(self.dir_show, self.dir_cache)
 			if artistsIndex == 1:
 				self._setSkinArtistBiografy(artist)
@@ -195,6 +194,7 @@ class MediaSlideshow(xbmc.Player):
 			common.trace('Collecting biography from provider: [%s]' % key)
 			params['getall'] = common.setting(key + "_all")
 			params['clientapikey'] = common.setting(key + "_apikey")
+			params['limit'] = common.setting(key + "_limit")
 			content = self.PROVIDERS[key].getBiography(params)
 			if content is not None and content and len(content) > len(biography):
 				common.trace('Stored new biography from provider [%s]' % key)
@@ -221,6 +221,7 @@ class MediaSlideshow(xbmc.Player):
 			common.debug('Collecting album information from provider: [%s]' % key)
 			params['getall'] = common.setting(key + "_all")
 			params['clientapikey'] = common.setting(key + "_apikey")
+			params['limit'] = common.setting(key + "_limit")
 			content = self.PROVIDERS[key].getAlbumList(params)
 			if content is not None and len(content) > len(albums):
 				common.debug('Stored album information from provider [%s], found up to %d albums' %(key, min(10,len(content))))
@@ -258,6 +259,7 @@ class MediaSlideshow(xbmc.Player):
 			common.debug('Identifying images by provider: [%s]' %key)
 			params['getall'] = common.setting(key + "_all")
 			params['clientapikey'] = common.setting(key + "_apikey")
+			params['limit'] = common.setting(key + "_limit")
 			content = self.PROVIDERS[key].getImageList(params)
 			if content is not None and len(content) > 0:
 				images.extend(content)
@@ -333,9 +335,9 @@ class MediaSlideshow(xbmc.Player):
 		artists = []
 		if xbmc.Player().isPlayingAudio():
 			time.sleep(1.5)
-			playingFile = xbmc.Player().getPlayingFile()
-			artistTag = xbmc.Player().getMusicInfoTag().getArtist().strip()
-			titleTag = xbmc.Player().getMusicInfoTag().getTitle().strip()
+			playingFile = common.strconvert(xbmc.Player().getPlayingFile(), False)
+			artistTag = common.strconvert(xbmc.Player().getMusicInfoTag().getArtist().strip(), False)
+			titleTag = common.strconvert(xbmc.Player().getMusicInfoTag().getTitle().strip(), False)
 			common.debug("Discovering artist details for: artist(s) = %s, title = %s, file = %s" %(artistTag, titleTag, playingFile))
 			if self._isempty(artistTag) and playingFile is not None and playingFile != '':
 				lastFileSep = playingFile.rfind(os.sep) + 1 if playingFile.count(os.sep, 0) > 0 else (playingFile.rfind(os.altsep) + 1 if playingFile.count(os.altsep, 0) > 0 else 0)
@@ -490,7 +492,7 @@ class MediaSlideshow(xbmc.Player):
 		_,cachelist = xbmcvfs.listdir(self.dir_cache)
 		for file in cachelist:
 			if file.lower().endswith('tbn') or file.lower().endswith('jpg') or file.lower().endswith('jpeg') or file.lower().endswith('gif') or file.lower().endswith('png'):
-				img_source = os.path.join(self.dir_cache, common.utf8(file).decode('utf-8'))
+				img_source = os.path.join(self.dir_cache, common.ustr(file).decode('utf-8'))
 				img_dest = os.path.join(self.dir_show, utilities.ItemHash(img_source) + utilities.ImageType(img_source))
 				xbmcvfs.copy(img_source, img_dest)
 
@@ -505,7 +507,7 @@ class MediaSlideshow(xbmc.Player):
 
 
 	def _resdir(self, artist):
-		CacheName = utilities.ItemHash(artist)
+		CacheName = utilities.ItemHash(common.ustr(artist))
 		resdir = xbmc.translatePath('special://profile/addon_data/%s/data/%s/' % (common.AddonId(), CacheName,)).decode('utf-8')
 		utilities.CheckPath(resdir)
 		return resdir

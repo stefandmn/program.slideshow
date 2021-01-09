@@ -85,3 +85,11 @@ msgstr ""
 msgctxt "#32207"
 msgid "Pocess prioritization"
 msgstr ""
+
+msgctxt "#32208"
+msgid "DuckDuckGo Search Engine"
+msgstr ""
+
+msgctxt "#32209"
+msgid "    Limit search to number of items"
+msgstr ""

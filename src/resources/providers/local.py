@@ -5,7 +5,7 @@ import common
 import xml.etree.ElementTree as _xmltree
 from .abstract import ContentProvider
 from utilities import ReadFile
-from common import utf8
+
 
 
 class Local(ContentProvider):
