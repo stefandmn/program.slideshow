@@ -194,7 +194,6 @@ class MediaSlideshow(xbmc.Player):
 			common.trace('Collecting biography from provider: [%s]' % key)
 			params['getall'] = common.setting(key + "_all")
 			params['clientapikey'] = common.setting(key + "_apikey")
-			params['limit'] = common.setting(key + "_limit")
 			content = self.PROVIDERS[key].getBiography(params)
 			if content is not None and content and len(content) > len(biography):
 				common.trace('Stored new biography from provider [%s]' % key)
@@ -221,7 +220,6 @@ class MediaSlideshow(xbmc.Player):
 			common.debug('Collecting album information from provider: [%s]' % key)
 			params['getall'] = common.setting(key + "_all")
 			params['clientapikey'] = common.setting(key + "_apikey")
-			params['limit'] = common.setting(key + "_limit")
 			content = self.PROVIDERS[key].getAlbumList(params)
 			if content is not None and len(content) > len(albums):
 				common.debug('Stored album information from provider [%s], found up to %d albums' %(key, min(10,len(content))))
@@ -259,7 +257,6 @@ class MediaSlideshow(xbmc.Player):
 			common.debug('Identifying images by provider: [%s]' %key)
 			params['getall'] = common.setting(key + "_all")
 			params['clientapikey'] = common.setting(key + "_apikey")
-			params['limit'] = common.setting(key + "_limit")
 			content = self.PROVIDERS[key].getImageList(params)
 			if content is not None and len(content) > 0:
 				images.extend(content)
