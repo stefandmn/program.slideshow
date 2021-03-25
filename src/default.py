@@ -88,6 +88,7 @@ class MediaSlideshow(xbmc.Player):
 		self._providers()
 		self._reload = False
 
+
 	def execute(self):
 		# define workflow resources (paths)
 		self.dir_root = xbmc.translatePath(common.AddonProfile()).decode('utf-8')
